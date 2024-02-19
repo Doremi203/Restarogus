@@ -24,7 +24,7 @@ class AuthenticationService(
             id = UUID.randomUUID(),
             userName = request.username,
             authPassword = passwordEncoder.encode(request.password),
-            role = Role.USER
+            role = Role.valueOf(request.role)
         )
         userRepository.add(user)
         val jwtToken = jwtService.generateToken(user)
