@@ -6,6 +6,7 @@ import org.amogus.restarogus.requests.RegisterRequest
 import org.amogus.restarogus.entities.Role
 import org.amogus.restarogus.entities.User
 import org.amogus.restarogus.repositories.UserRepository
+import org.amogus.restarogus.services.interfaces.JwtService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
