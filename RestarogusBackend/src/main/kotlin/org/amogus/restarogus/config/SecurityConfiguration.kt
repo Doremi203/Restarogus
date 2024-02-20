@@ -23,6 +23,10 @@ class SecurityConfiguration(
             .authorizeHttpRequests {
                 it.requestMatchers("/api/auth/**")
                     .permitAll()
+                    .requestMatchers("/api/administration/**")
+                    .hasAuthority("ADMIN")
+                    .requestMatchers("/api/customer/**")
+                    .hasAuthority("CUSTOMER")
                     .anyRequest()
                     .authenticated()
             }
