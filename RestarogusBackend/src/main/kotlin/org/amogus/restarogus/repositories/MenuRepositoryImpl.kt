@@ -3,6 +3,7 @@ package org.amogus.restarogus.repositories
 import org.amogus.restarogus.entities.MenuItemEntity
 import org.amogus.restarogus.entities.MenuItemUpdateEntity
 import org.amogus.restarogus.models.MenuItem
+import org.amogus.restarogus.repositories.mappers.MenuItemRowMapper
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Repository
@@ -41,17 +42,31 @@ class MenuRepositoryImpl(
     }
 
     override fun updateMenuItem(id: Int, item: MenuItemUpdateEntity) {
-        val sqlQuery = """
-        UPDATE menu_items 
-        SET name = COALESCE(?, name), 
-            price = COALESCE(?, price), 
-            cook_time_in_minutes = COALESCE(?, cook_time_in_minutes), 
-            quantity = COALESCE(?, quantity) 
-        WHERE id = ?;
+        val checkExistenceSqlQuery = """
+    SELECT EXISTS(SELECT 1 FROM menu_items WHERE id = ?);
+    """.trimIndent()
+
+        val exists = dataBase.queryForObject(
+            checkExistenceSqlQuery,
+            Boolean::class.java,
+            id
+        )
+
+        if (!exists) {
+            throw IllegalArgumentException("Item with id $id does not exist")
+        }
+
+        val updateSqlQuery = """
+    UPDATE menu_items
+    SET name = COALESCE(?, name),
+        price = COALESCE(?, price),
+        cook_time_in_minutes = COALESCE(?, cook_time_in_minutes),
+        quantity = COALESCE(?, quantity)
+    WHERE id = ?;
     """.trimIndent()
 
         dataBase.update(
-            sqlQuery,
+            updateSqlQuery,
             item.name,
             item.price,
             item.cookTimeInMinutes,
@@ -61,6 +76,12 @@ class MenuRepositoryImpl(
     }
 
     override fun getMenuItem(id: Int): MenuItem {
-        TODO("Not yet implemented")
+        val sqlQuery = """
+        SELECT * FROM menu_items WHERE id = ?;
+    """.trimIndent()
+
+        return dataBase.queryForObject(sqlQuery, MenuItemRowMapper(), id)
+            ?: throw IllegalArgumentException("Item with id $id does not exist")
     }
 }
+
