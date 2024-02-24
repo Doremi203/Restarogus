@@ -1,4 +1,4 @@
-package org.amogus.restarogus.entities
+package org.amogus.restarogus.models
 
 enum class Role {
     CUSTOMER,

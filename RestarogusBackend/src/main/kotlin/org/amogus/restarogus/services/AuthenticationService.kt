@@ -1,8 +1,8 @@
 package org.amogus.restarogus.services
 
-import org.amogus.restarogus.entities.Role
-import org.amogus.restarogus.entities.User
-import org.amogus.restarogus.repositories.UserRepository
+import org.amogus.restarogus.models.Role
+import org.amogus.restarogus.models.User
+import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.amogus.restarogus.requests.LoginRequest
 import org.amogus.restarogus.requests.RegisterRequest
 import org.amogus.restarogus.responses.AuthenticationResponse
@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
 class AuthenticationService(
@@ -22,13 +21,14 @@ class AuthenticationService(
 ) {
     fun register(request: RegisterRequest): AuthenticationResponse? {
         val user = User(
-            id = UUID.randomUUID(),
-            userName = request.username,
-            authPassword = passwordEncoder.encode(request.password),
+            username = request.username,
+            password = passwordEncoder.encode(request.password),
             role = Role.valueOf(request.role)
         )
-        userRepository.add(user)
-        val jwtToken = jwtService.generateToken(user)
+        val userId = userRepository.add(user)
+        val jwtToken = jwtService.generateToken(
+            user.copy(id = userId)
+        )
         return AuthenticationResponse(jwtToken)
     }
 

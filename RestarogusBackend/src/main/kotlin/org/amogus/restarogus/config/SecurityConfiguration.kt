@@ -23,9 +23,9 @@ class SecurityConfiguration(
             .authorizeHttpRequests {
                 it.requestMatchers("/api/auth/**")
                     .permitAll()
-                    .requestMatchers("/api/administration/**")
+                    .requestMatchers("/api/menuItems/**")
                     .hasAuthority("ADMIN")
-                    .requestMatchers("/api/customer/**")
+                    .requestMatchers("/api/orders/**")
                     .hasAuthority("CUSTOMER")
                     .anyRequest()
                     .authenticated()

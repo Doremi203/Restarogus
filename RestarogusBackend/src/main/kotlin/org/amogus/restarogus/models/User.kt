@@ -1,23 +1,25 @@
-package org.amogus.restarogus.entities
+package org.amogus.restarogus.models
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import java.util.*
 
 data class User(
-    val id: UUID, val userName: String, val authPassword: String, val role: Role
+    private val username: String,
+    private val password: String,
+    val role: Role,
+    val id: Long = 0L,
 ) : UserDetails {
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return mutableListOf(SimpleGrantedAuthority(role.name))
     }
 
     override fun getPassword(): String {
-        return authPassword
+        return password
     }
 
     override fun getUsername(): String {
-        return userName
+        return username
     }
 
     override fun isAccountNonExpired(): Boolean {

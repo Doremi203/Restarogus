@@ -1,9 +1,10 @@
 package org.amogus.restarogus.requests
 
+import java.math.BigDecimal
+
 data class UpdateMenuItemRequest(
-    val id: Int?,
-    val name: String?,
-    val price: Double?,
-    val cookTimeInMinutes: Int?,
-    val quantity: Int?
+    val name: String,
+    val price: BigDecimal,
+    val cookTimeInMinutes: Int,
+    val quantity: Int
 )
