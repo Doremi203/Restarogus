@@ -13,7 +13,7 @@ class MenuItemsServiceImpl(
     private val menuItemsRepository: MenuItemsRepository
 ) : MenuItemsService {
     override fun addMenuItem(menuItem: AddMenuItemRequest): Long {
-        return menuItemsRepository.addMenuItem(
+        return menuItemsRepository.add(
             MenuItemDTO(
                 menuItem.name,
                 menuItem.price,
@@ -24,12 +24,11 @@ class MenuItemsServiceImpl(
     }
 
     override fun removeMenuItem(id: Long) {
-        menuItemsRepository.removeMenuItem(id)
+        menuItemsRepository.remove(id)
     }
 
     override fun updateMenuItem(id: Long, menuItem: UpdateMenuItemRequest) {
-        menuItemsRepository.updateMenuItem(
-            id,
+        menuItemsRepository.update(
             MenuItemDTO(
                 menuItem.name,
                 menuItem.price,
@@ -40,7 +39,7 @@ class MenuItemsServiceImpl(
     }
 
     override fun getMenuItemById(id: Long): GetMenuItemResponse {
-        val menuItem = menuItemsRepository.getMenuItemById(id)
+        val menuItem = menuItemsRepository.getById(id)
         return GetMenuItemResponse(
             menuItem.id,
             menuItem.name,

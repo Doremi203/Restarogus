@@ -6,6 +6,7 @@ import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.amogus.restarogus.requests.LoginRequest
 import org.amogus.restarogus.requests.RegisterRequest
 import org.amogus.restarogus.responses.AuthenticationResponse
+import org.amogus.restarogus.services.interfaces.AuthenticationService
 import org.amogus.restarogus.services.interfaces.JwtService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -13,13 +14,13 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class AuthenticationService(
+class AuthenticationServiceImpl(
     val userRepository: UserRepository,
     val jwtService: JwtService,
     val authenticationManager: AuthenticationManager,
     val passwordEncoder: PasswordEncoder
-) {
-    fun register(request: RegisterRequest): AuthenticationResponse? {
+) : AuthenticationService {
+    override fun register(request: RegisterRequest): AuthenticationResponse? {
         val user = User(
             username = request.username,
             password = passwordEncoder.encode(request.password),
@@ -32,7 +33,7 @@ class AuthenticationService(
         return AuthenticationResponse(jwtToken)
     }
 
-    fun login(request: LoginRequest): AuthenticationResponse? {
+    override fun login(request: LoginRequest): AuthenticationResponse? {
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(
                 request.username,
