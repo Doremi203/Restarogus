@@ -25,8 +25,10 @@ class SecurityConfiguration(
                     .permitAll()
                     .requestMatchers("/api/menuItems/**")
                     .hasAuthority("ADMIN")
+                    .requestMatchers("/api/restaurant_stats/**")
+                    .hasAuthority("ADMIN")
                     .requestMatchers("/api/orders/**")
-                    .hasAuthority("CUSTOMER")
+                    .hasAnyAuthority("ADMIN", "CUSTOMER")
                     .anyRequest()
                     .authenticated()
             }
