@@ -2,6 +2,17 @@ drop table if exists public.order_positions cascade;
 drop table if exists public.orders cascade;
 drop table if exists public.menu_items cascade;
 drop table if exists public.users;
+drop table if exists public.restaurant_stats;
+
+create table public.restaurant_stats
+(
+    id          int not null default 1
+        constraint restaurant_stats_pk
+            primary key,
+    revenue     double precision
+);
+
+insert into public.restaurant_stats (id, revenue) values (1, 0);
 
 create table public.users
 (
@@ -42,8 +53,7 @@ create table public.orders
     customer_id bigint
         constraint orders_users_id_fk
             references public.users,
-    status      varchar,
-    total_price double precision
+    status      varchar
 );
 
 alter table public.orders
@@ -60,7 +70,8 @@ create table public.order_positions
     menu_item_id bigint
         constraint order_positions_menu_items_id_fk
             references public.menu_items,
-    quantity     integer
+    quantity     integer,
+    quantity_done integer
 );
 
 alter table public.order_positions

@@ -1,6 +1,6 @@
 package org.amogus.restarogus.config
 
-import org.amogus.restarogus.repositories.UserRepository
+import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -11,9 +11,15 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 @Configuration
-class ApplicationConfiguration(val userRepository: UserRepository) {
+class ApplicationConfiguration(
+    val userRepository: UserRepository,
+) {
     @Bean
     fun userDetailsService(): UserDetailsService {
         return UserDetailsService { username ->
@@ -37,5 +43,23 @@ class ApplicationConfiguration(val userRepository: UserRepository) {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
+    }
+
+    @Bean
+    fun chefExecutorService(): ExecutorService {
+        val corePoolSize = 2
+        val maximumPoolSize = 2
+        val keepAliveTime = 0L
+        val unit = TimeUnit.MILLISECONDS
+        val workerQueue = ArrayBlockingQueue<Runnable>(2)
+        val handler = ThreadPoolExecutor.DiscardPolicy()
+        return ThreadPoolExecutor(
+            corePoolSize,
+            maximumPoolSize,
+            keepAliveTime,
+            unit,
+            workerQueue,
+            handler
+        )
     }
 }
