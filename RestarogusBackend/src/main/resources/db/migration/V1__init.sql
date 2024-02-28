@@ -1,9 +1,3 @@
-drop table if exists public.order_positions cascade;
-drop table if exists public.orders cascade;
-drop table if exists public.menu_items cascade;
-drop table if exists public.users;
-drop table if exists public.restaurant_stats;
-
 create table if not exists public.restaurant_stats
 (
     id          int not null default 1
@@ -14,8 +8,6 @@ create table if not exists public.restaurant_stats
 
 alter table public.restaurant_stats
     owner to postgres;
-
-insert into public.restaurant_stats (id, revenue) values (1, 0);
 
 create table public.users
 (

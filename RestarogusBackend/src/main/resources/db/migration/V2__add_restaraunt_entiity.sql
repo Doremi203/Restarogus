@@ -1,0 +1,1 @@
+insert into public.restaurant_stats (id, revenue) values (1, 0);
