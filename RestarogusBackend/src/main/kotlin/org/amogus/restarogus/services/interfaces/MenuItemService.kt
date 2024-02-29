@@ -4,7 +4,7 @@ import org.amogus.restarogus.requests.AddMenuItemRequest
 import org.amogus.restarogus.requests.UpdateMenuItemRequest
 import org.amogus.restarogus.responses.GetMenuItemResponse
 
-interface MenuItemsService {
+interface MenuItemService {
     fun addMenuItem(menuItem: AddMenuItemRequest): Long
     fun removeMenuItem(id: Long)
     fun updateMenuItem(id: Long, menuItem: UpdateMenuItemRequest)

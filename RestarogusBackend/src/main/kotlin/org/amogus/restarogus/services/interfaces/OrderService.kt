@@ -2,6 +2,7 @@ package org.amogus.restarogus.services.interfaces
 
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.requests.OrderRequest
+import org.amogus.restarogus.requests.ReviewRequest
 import java.math.BigDecimal
 
 interface OrderService {
@@ -11,4 +12,5 @@ interface OrderService {
     fun addPositions(customerId: Long, orderId: Long, orderRequest: OrderRequest)
     fun payOrder(customerId: Long, orderId: Long)
     fun calculateTotalPrice(orderId: Long): BigDecimal
+    fun addReview(customerId: Long, orderId: Long, review: ReviewRequest)
 }

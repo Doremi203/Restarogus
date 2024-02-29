@@ -1,7 +1,7 @@
 package org.amogus.restarogus.repositories
 
 import org.amogus.restarogus.repositories.dto.MenuItemDTO
-import org.amogus.restarogus.repositories.interfaces.MenuItemsRepository
+import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.PreparedStatementCreator
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository
 import java.sql.Statement
 
 @Repository
-class PostgresMenuItemsRepository(
+class PostgresMenuItemRepository(
     private val dataBase: JdbcTemplate
-) : MenuItemsRepository {
+) : MenuItemRepository {
     override fun add(item: MenuItemDTO): Long {
         val keyHolder = GeneratedKeyHolder()
 

@@ -3,7 +3,7 @@ package org.amogus.restarogus.services
 import org.amogus.restarogus.models.OrderPosition
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.dto.OrderPositionDTO
-import org.amogus.restarogus.repositories.interfaces.MenuItemsRepository
+import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.amogus.restarogus.services.interfaces.OrderPublisher
@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService
 final class ChefOrderSubscriber(
     private val orderRepository: OrderRepository,
     private val orderPositionRepository: OrderPositionRepository,
-    private val menuItemsRepository: MenuItemsRepository,
+    private val menuItemsRepository: MenuItemRepository,
     private val workerPool: ExecutorService,
     orderPublisher: OrderPublisher
 ) : OrderSubscriber {
