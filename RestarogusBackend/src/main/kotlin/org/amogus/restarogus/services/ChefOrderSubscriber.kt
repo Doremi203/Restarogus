@@ -1,5 +1,6 @@
 package org.amogus.restarogus.services
 
+import org.amogus.restarogus.models.Order
 import org.amogus.restarogus.models.OrderPosition
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.dto.OrderPositionDTO
@@ -8,6 +9,7 @@ import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.amogus.restarogus.services.interfaces.OrderPublisher
 import org.amogus.restarogus.services.interfaces.OrderSubscriber
+import org.amogus.restarogus.services.interfaces.PriorityStrategy
 import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService
 
@@ -17,16 +19,18 @@ final class ChefOrderSubscriber(
     private val orderPositionRepository: OrderPositionRepository,
     private val menuItemsRepository: MenuItemRepository,
     private val workerPool: ExecutorService,
-    orderPublisher: OrderPublisher
+    private val priorityStrategy: PriorityStrategy,
+    orderPublisher: OrderPublisher,
 ) : OrderSubscriber {
     init {
         orderPublisher.subscribe(this)
     }
 
-    override fun update(orderIds: List<Long>) {
-        orderIds.forEach { orderId ->
+    override fun update(orders: List<Order>) {
+        val prioritizedOrders = priorityStrategy.getPriorityOrders(orders)
+        prioritizedOrders.forEach { order ->
             workerPool.execute {
-                cookOrder(orderId)
+                cookOrder(order.id)
             }
         }
     }

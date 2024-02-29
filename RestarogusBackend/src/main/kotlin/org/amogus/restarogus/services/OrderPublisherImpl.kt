@@ -1,5 +1,6 @@
 package org.amogus.restarogus.services
 
+import org.amogus.restarogus.models.Order
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.amogus.restarogus.services.interfaces.OrderPublisher
@@ -21,16 +22,15 @@ class OrderPublisherImpl(
         subscribers.remove(subscriber)
     }
 
-    override fun notify(orderIds: List<Long>) {
-        subscribers.forEach { it.update(orderIds) }
+    override fun notify(orders: List<Order>) {
+        subscribers.forEach { it.update(orders) }
     }
 
     @Scheduled(fixedRate = 30000)
     private fun getCurrentPendingOrders() {
         val orders = orderRepository.getAll()
         val pendingOrders = orders.filter { it.status == OrderStatus.PENDING }
-        val pendingOrderIds = pendingOrders.map { it.id }
-        notify(pendingOrderIds)
+        notify(pendingOrders.map { Order(it.id, it.date) })
     }
 }
 
