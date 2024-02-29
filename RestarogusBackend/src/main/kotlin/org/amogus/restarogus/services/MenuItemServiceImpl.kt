@@ -1,17 +1,17 @@
 package org.amogus.restarogus.services
 
 import org.amogus.restarogus.repositories.dto.MenuItemDTO
-import org.amogus.restarogus.repositories.interfaces.MenuItemsRepository
+import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.amogus.restarogus.requests.AddMenuItemRequest
 import org.amogus.restarogus.requests.UpdateMenuItemRequest
 import org.amogus.restarogus.responses.GetMenuItemResponse
-import org.amogus.restarogus.services.interfaces.MenuItemsService
+import org.amogus.restarogus.services.interfaces.MenuItemService
 import org.springframework.stereotype.Service
 
 @Service
-class MenuItemsServiceImpl(
-    private val menuItemsRepository: MenuItemsRepository
-) : MenuItemsService {
+class MenuItemServiceImpl(
+    private val menuItemsRepository: MenuItemRepository
+) : MenuItemService {
     override fun addMenuItem(menuItem: AddMenuItemRequest): Long {
         return menuItemsRepository.add(
             MenuItemDTO(

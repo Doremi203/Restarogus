@@ -3,27 +3,33 @@ package org.amogus.restarogus.services
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.dto.OrderDTO
 import org.amogus.restarogus.repositories.dto.OrderPositionDTO
-import org.amogus.restarogus.repositories.interfaces.MenuItemsRepository
+import org.amogus.restarogus.repositories.dto.ReviewDTO
+import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
+import org.amogus.restarogus.repositories.interfaces.ReviewRepository
 import org.amogus.restarogus.requests.OrderRequest
+import org.amogus.restarogus.requests.ReviewRequest
 import org.amogus.restarogus.services.interfaces.OrderService
 import org.amogus.restarogus.services.interfaces.RestaurantStatsService
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @Service
 class OrderServiceImpl(
     private val orderRepository: OrderRepository,
     private val orderPositionRepository: OrderPositionRepository,
+    private val reviewRepository: ReviewRepository,
     private val restaurantStatsService: RestaurantStatsService,
-    private val menuRepository: MenuItemsRepository,
+    private val menuRepository: MenuItemRepository,
 ) : OrderService {
     override fun placeOrder(customerId: Long, orderRequest: OrderRequest): Long {
         val orderId = orderRepository.add(
             OrderDTO(
                 customerId = customerId,
                 status = OrderStatus.PENDING,
+                date = LocalDateTime.now()
             )
         )
 
@@ -92,6 +98,7 @@ class OrderServiceImpl(
 
         val totalPrice = calculateTotalPrice(orderId)
         restaurantStatsService.updateRevenue(totalPrice)
+        orderRepository.updateOrderStatus(orderId, OrderStatus.PAYED)
     }
 
     override fun calculateTotalPrice(orderId: Long): BigDecimal {
@@ -104,5 +111,23 @@ class OrderServiceImpl(
         }
 
         return totalPrice
+    }
+
+    override fun addReview(customerId: Long, orderId: Long, review: ReviewRequest) {
+        val order = orderRepository.getById(orderId)
+        if (order.customerId != customerId) {
+            throw IllegalArgumentException("Order does not belong to the customer")
+        }
+        if (order.status != OrderStatus.PAYED) {
+            throw IllegalArgumentException("Order is not payed")
+        }
+
+        reviewRepository.add(
+            ReviewDTO(
+                orderId = orderId,
+                rating = review.rating,
+                comment = review.comment,
+            )
+        )
     }
 }

@@ -6,5 +6,6 @@ interface OrderPositionRepository {
     fun add(order: OrderPositionDTO): Long
     fun remove(id: Long)
     fun update(orderPosition: OrderPositionDTO)
+    fun getAll(): List<OrderPositionDTO>
     fun getAllByOrderId(orderId: Long): List<OrderPositionDTO>
 }

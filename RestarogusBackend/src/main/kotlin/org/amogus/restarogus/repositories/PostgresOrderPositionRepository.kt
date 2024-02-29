@@ -71,6 +71,20 @@ class PostgresOrderPositionRepository(
         }
     }
 
+    override fun getAll(): List<OrderPositionDTO> {
+        val preparedStatementCreator = PreparedStatementCreator { connection ->
+            val preparedStatement = connection.prepareStatement(
+                """SELECT * FROM order_positions""".trimIndent()
+            )
+            preparedStatement
+        }
+
+        return dataBase.query(
+            preparedStatementCreator,
+            DataClassRowMapper.newInstance(OrderPositionDTO::class.java)
+        )
+    }
+
     override fun getAllByOrderId(orderId: Long): List<OrderPositionDTO> {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(

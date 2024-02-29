@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import java.sql.Statement
+import java.sql.Timestamp
 
 @Repository
 class PostgresOrderRepository(
@@ -18,12 +19,13 @@ class PostgresOrderRepository(
         val keyHolder = GeneratedKeyHolder()
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
-                """INSERT INTO orders(customer_id, status) 
-                    VALUES (?, ?)""".trimIndent(),
+                """INSERT INTO orders(customer_id, status, date) 
+                    VALUES (?, ?, ?)""".trimIndent(),
                 Statement.RETURN_GENERATED_KEYS
             )
             preparedStatement.setLong(1, order.customerId)
             preparedStatement.setString(2, order.status.name)
+            preparedStatement.setTimestamp(3, Timestamp.valueOf(order.date))
             preparedStatement
         }
 
