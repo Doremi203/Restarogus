@@ -1,4 +1,4 @@
-package org.amogus.restarogus.services
+package org.amogus.restarogus.services.orderSystem
 
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.dto.OrderDTO
@@ -10,9 +10,11 @@ import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.amogus.restarogus.repositories.interfaces.ReviewRepository
 import org.amogus.restarogus.requests.OrderRequest
 import org.amogus.restarogus.requests.ReviewRequest
-import org.amogus.restarogus.services.interfaces.OrderService
 import org.amogus.restarogus.services.interfaces.RestaurantStatsService
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderService
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -24,6 +26,7 @@ class OrderServiceImpl(
     private val restaurantStatsService: RestaurantStatsService,
     private val menuRepository: MenuItemRepository,
 ) : OrderService {
+    @Transactional
     override fun placeOrder(customerId: Long, orderRequest: OrderRequest): Long {
         val orderId = orderRepository.add(
             OrderDTO(
@@ -48,33 +51,26 @@ class OrderServiceImpl(
 
     override fun cancelOrder(customerId: Long, orderId: Long) {
         val order = orderRepository.getById(orderId)
-        if (order.customerId != customerId) {
-            throw IllegalArgumentException("Order does not belong to the customer")
-        }
-        if (order.status == OrderStatus.FINISHED || order.status == OrderStatus.CANCELLED) {
-            throw IllegalArgumentException("Order is not pending")
-        }
+
+        assertOrderOwnership(order, customerId)
+        asserOrderPending(order)
 
         orderRepository.updateOrderStatus(orderId, OrderStatus.CANCELLED)
     }
 
     override fun getOrderStatus(customerId: Long, orderId: Long): OrderStatus {
         val order = orderRepository.getById(orderId)
-        if (order.customerId != customerId) {
-            throw IllegalArgumentException("Order does not belong to the customer")
-        }
+
+        assertOrderOwnership(order, customerId)
 
         return orderRepository.getById(orderId).status
     }
 
     override fun addPositions(customerId: Long, orderId: Long, orderRequest: OrderRequest) {
         val order = orderRepository.getById(orderId)
-        if (order.customerId != customerId) {
-            throw IllegalArgumentException("Order does not belong to the customer")
-        }
-        if (order.status == OrderStatus.FINISHED || order.status == OrderStatus.CANCELLED) {
-            throw IllegalArgumentException("Order is not pending")
-        }
+
+        assertOrderOwnership(order, customerId)
+        asserOrderPending(order)
 
         for (menuItem in orderRequest.menuItems) {
             orderPositionRepository.add(
@@ -89,9 +85,8 @@ class OrderServiceImpl(
 
     override fun payOrder(customerId: Long, orderId: Long) {
         val order = orderRepository.getById(orderId)
-        if (order.customerId != customerId) {
-            throw IllegalArgumentException("Order does not belong to the customer")
-        }
+
+        assertOrderOwnership(order, customerId)
         if (order.status != OrderStatus.FINISHED) {
             throw IllegalArgumentException("Order is not finished")
         }
@@ -115,9 +110,8 @@ class OrderServiceImpl(
 
     override fun addReview(customerId: Long, orderId: Long, review: ReviewRequest) {
         val order = orderRepository.getById(orderId)
-        if (order.customerId != customerId) {
-            throw IllegalArgumentException("Order does not belong to the customer")
-        }
+
+        assertOrderOwnership(order, customerId)
         if (order.status != OrderStatus.PAYED) {
             throw IllegalArgumentException("Order is not payed")
         }
@@ -129,5 +123,17 @@ class OrderServiceImpl(
                 comment = review.comment,
             )
         )
+    }
+
+    private fun assertOrderOwnership(order: OrderDTO, customerId: Long) {
+        if (order.customerId != customerId) {
+            throw AccessDeniedException("Order does not belong to the customer")
+        }
+    }
+
+    private fun asserOrderPending(order: OrderDTO) {
+        if (order.status == OrderStatus.FINISHED || order.status == OrderStatus.CANCELLED) {
+            throw IllegalArgumentException("Order is not pending")
+        }
     }
 }

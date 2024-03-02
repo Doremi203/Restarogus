@@ -1,4 +1,4 @@
-package org.amogus.restarogus.services
+package org.amogus.restarogus.services.authorization
 
 import org.amogus.restarogus.models.Role
 import org.amogus.restarogus.models.User
@@ -6,8 +6,8 @@ import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.amogus.restarogus.requests.LoginRequest
 import org.amogus.restarogus.requests.RegisterRequest
 import org.amogus.restarogus.responses.AuthenticationResponse
-import org.amogus.restarogus.services.interfaces.AuthenticationService
-import org.amogus.restarogus.services.interfaces.JwtService
+import org.amogus.restarogus.services.interfaces.authorization.AuthenticationService
+import org.amogus.restarogus.services.interfaces.authorization.JwtService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder

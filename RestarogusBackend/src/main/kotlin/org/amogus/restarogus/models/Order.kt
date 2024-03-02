@@ -4,5 +4,5 @@ import java.time.LocalDateTime
 
 data class Order(
     val id: Long,
-    val dateTime: LocalDateTime
+    val date: LocalDateTime
 )

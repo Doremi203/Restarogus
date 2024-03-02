@@ -1,4 +1,4 @@
-package org.amogus.restarogus.services
+package org.amogus.restarogus.services.orderSystem
 
 import org.amogus.restarogus.models.Order
 import org.amogus.restarogus.models.OrderPosition
@@ -7,9 +7,9 @@ import org.amogus.restarogus.repositories.dto.OrderPositionDTO
 import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
-import org.amogus.restarogus.services.interfaces.OrderPublisher
-import org.amogus.restarogus.services.interfaces.OrderSubscriber
-import org.amogus.restarogus.services.interfaces.PriorityStrategy
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderPublisher
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderSubscriber
+import org.amogus.restarogus.services.interfaces.orderSystem.PriorityStrategy
 import org.springframework.stereotype.Service
 import java.util.concurrent.ExecutorService
 

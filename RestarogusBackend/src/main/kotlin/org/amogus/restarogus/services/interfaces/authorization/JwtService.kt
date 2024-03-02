@@ -1,4 +1,4 @@
-package org.amogus.restarogus.services.interfaces
+package org.amogus.restarogus.services.interfaces.authorization
 
 import org.springframework.security.core.userdetails.UserDetails
 
