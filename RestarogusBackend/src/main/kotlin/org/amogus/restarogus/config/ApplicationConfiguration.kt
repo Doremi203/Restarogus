@@ -48,24 +48,6 @@ class ApplicationConfiguration(
     }
 
     @Bean
-    fun chefExecutorService(): ExecutorService {
-        val corePoolSize = 2
-        val maximumPoolSize = 2
-        val keepAliveTime = 0L
-        val unit = TimeUnit.MILLISECONDS
-        val workerQueue = ArrayBlockingQueue<Runnable>(2)
-        val handler = ThreadPoolExecutor.DiscardPolicy()
-        return ThreadPoolExecutor(
-            corePoolSize,
-            maximumPoolSize,
-            keepAliveTime,
-            unit,
-            workerQueue,
-            handler
-        )
-    }
-
-    @Bean
     fun priorityStrategy(): PriorityStrategy {
         return OlderOrdersFirstPriorityStrategy()
     }
