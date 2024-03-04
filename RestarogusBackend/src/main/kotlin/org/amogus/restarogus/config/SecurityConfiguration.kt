@@ -1,6 +1,7 @@
 package org.amogus.restarogus.config
 
 import org.amogus.restarogus.filters.JwtAuthenticationFilter
+import org.amogus.restarogus.models.Role
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
@@ -20,17 +21,16 @@ class SecurityConfiguration(
     fun securityFilterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         httpSecurity
             .csrf { it.disable() }
-            .authorizeHttpRequests {
-                it.requestMatchers("/api/auth/**")
-                    .permitAll()
+            .authorizeHttpRequests { config ->
+                config
                     .requestMatchers("/api/menuItems/**")
-                    .hasAuthority("ADMIN")
+                    .hasAuthority(Role.ADMIN.name)
                     .requestMatchers("/api/restaurant_stats/**")
-                    .hasAuthority("ADMIN")
+                    .hasAuthority(Role.ADMIN.name)
                     .requestMatchers("/api/orders/**")
-                    .hasAnyAuthority("ADMIN", "CUSTOMER")
+                    .hasAnyAuthority(Role.ADMIN.name, Role.CUSTOMER.name)
                     .anyRequest()
-                    .authenticated()
+                    .permitAll()
             }
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

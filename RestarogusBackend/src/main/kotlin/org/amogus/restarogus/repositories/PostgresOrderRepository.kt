@@ -79,10 +79,7 @@ class PostgresOrderRepository(
             preparedStatementCreator,
             DataClassRowMapper.newInstance(OrderDTO::class.java)
         ).firstOrNull()
-
-        if (order == null) {
-            throw IllegalArgumentException("Order with id $orderId does not exist")
-        }
+            ?: throw NoSuchElementException("No order with id: $orderId")
 
         return order
     }

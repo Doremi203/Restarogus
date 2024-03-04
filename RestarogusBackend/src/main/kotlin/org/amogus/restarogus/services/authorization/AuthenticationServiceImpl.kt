@@ -40,7 +40,7 @@ class AuthenticationServiceImpl(
                 request.password
             )
         )
-        val user = userRepository.getByUserName(request.username) ?: throw Exception("User not found")
+        val user = userRepository.getByUserName(request.username)
         val jwtToken = jwtService.generateToken(user)
         return AuthenticationResponse(jwtToken)
     }

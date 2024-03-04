@@ -45,7 +45,7 @@ class PostgresOrderPositionRepository(
         val deletedCount = dataBase.update(preparedStatementCreator)
 
         if (deletedCount == 0) {
-            throw IllegalArgumentException("Order position with id $id does not exist")
+            throw NoSuchElementException("Order position with id $id does not exist")
         }
     }
 
@@ -67,7 +67,7 @@ class PostgresOrderPositionRepository(
         val updatedCount = dataBase.update(preparedStatementCreator)
 
         if (updatedCount == 0) {
-            throw IllegalArgumentException("Order position with id ${orderPosition.id} does not exist")
+            throw NoSuchElementException("Order position with id ${orderPosition.id} does not exist")
         }
     }
 

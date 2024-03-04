@@ -45,7 +45,7 @@ class PostgresMenuItemRepository(
         val deletedCount = dataBase.update(preparedStatementCreator)
 
         if (deletedCount == 0) {
-            throw IllegalArgumentException("Item with id $id does not exist")
+            throw NoSuchElementException("Item with id $id does not exist")
         }
     }
 
@@ -67,7 +67,7 @@ class PostgresMenuItemRepository(
         val updatedCount = dataBase.update(preparedStatementCreator)
 
         if (updatedCount == 0) {
-            throw IllegalArgumentException("Item with id $item.id does not exist")
+            throw NoSuchElementException("Item with id ${item.id} does not exist")
         }
     }
 
@@ -86,10 +86,7 @@ class PostgresMenuItemRepository(
             preparedStatementCreator,
             DataClassRowMapper.newInstance(MenuItemDTO::class.java)
         ).firstOrNull()
-
-        if (menuItem == null) {
-            throw IllegalArgumentException("Item with id $id does not exist")
-        }
+            ?: throw NoSuchElementException("Item with id $id does not exist")
 
         return menuItem
     }
