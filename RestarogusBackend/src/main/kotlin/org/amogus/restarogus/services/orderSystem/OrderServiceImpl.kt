@@ -1,5 +1,6 @@
 package org.amogus.restarogus.services.orderSystem
 
+import org.amogus.restarogus.exceptions.IncorrectOrderStatusException
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.dto.OrderDTO
 import org.amogus.restarogus.repositories.dto.OrderPositionDTO
@@ -87,9 +88,7 @@ class OrderServiceImpl(
         val order = orderRepository.getById(orderId)
 
         assertOrderOwnership(order, customerId)
-        if (order.status != OrderStatus.FINISHED) {
-            throw IllegalArgumentException("Order is not finished")
-        }
+        assertOrderCanBePayed(order)
 
         val totalPrice = calculateTotalPrice(orderId)
         restaurantStatsService.updateRevenue(totalPrice)
@@ -112,9 +111,7 @@ class OrderServiceImpl(
         val order = orderRepository.getById(orderId)
 
         assertOrderOwnership(order, customerId)
-        if (order.status != OrderStatus.PAYED) {
-            throw IllegalArgumentException("Order is not payed")
-        }
+        assertOrderCanBeReviewed(order)
 
         reviewRepository.add(
             ReviewDTO(
@@ -125,15 +122,27 @@ class OrderServiceImpl(
         )
     }
 
-    private fun assertOrderOwnership(order: OrderDTO, customerId: Long) {
+    fun assertOrderOwnership(order: OrderDTO, customerId: Long) {
         if (order.customerId != customerId) {
             throw AccessDeniedException("Order does not belong to the customer")
         }
     }
 
-    private fun asserOrderPending(order: OrderDTO) {
+    fun asserOrderPending(order: OrderDTO) {
         if (order.status == OrderStatus.FINISHED || order.status == OrderStatus.CANCELLED) {
-            throw IllegalArgumentException("Order is not pending")
+            throw IncorrectOrderStatusException("Order is not pending")
+        }
+    }
+
+    fun assertOrderCanBePayed(order: OrderDTO) {
+        if (order.status != OrderStatus.FINISHED) {
+            throw IncorrectOrderStatusException("Order is not finished")
+        }
+    }
+
+    private fun assertOrderCanBeReviewed(order: OrderDTO) {
+        if (order.status != OrderStatus.PAYED) {
+            throw IncorrectOrderStatusException("Order is not payed")
         }
     }
 }
