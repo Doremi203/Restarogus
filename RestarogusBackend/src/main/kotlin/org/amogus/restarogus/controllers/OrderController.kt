@@ -4,6 +4,7 @@ import org.amogus.restarogus.models.User
 import org.amogus.restarogus.requests.OrderRequest
 import org.amogus.restarogus.requests.ReviewRequest
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.web.bind.annotation.*
@@ -20,7 +21,7 @@ class OrderController(
         val customer = userDetailsService.loadUserByUsername(principal.name) as User
 
         val orderId = orderService.placeOrder(customer.id, request)
-        return ResponseEntity.ok(orderId)
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderId)
     }
 
     @PostMapping("/{orderId}/positions")
@@ -32,7 +33,7 @@ class OrderController(
         val customer = userDetailsService.loadUserByUsername(principal.name) as User
 
         orderService.addPositions(customer.id, orderId, request)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 
     @PostMapping("/{orderId}/cancel")
@@ -40,7 +41,7 @@ class OrderController(
         val customer = userDetailsService.loadUserByUsername(principal.name) as User
 
         orderService.cancelOrder(customer.id, orderId)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
     @PostMapping("/{orderId}/pay")
@@ -68,6 +69,6 @@ class OrderController(
         val customer = userDetailsService.loadUserByUsername(principal.name) as User
 
         orderService.addReview(customer.id, orderId, review)
-        return ResponseEntity.ok().build()
+        return ResponseEntity.status(HttpStatus.CREATED).build()
     }
 }
