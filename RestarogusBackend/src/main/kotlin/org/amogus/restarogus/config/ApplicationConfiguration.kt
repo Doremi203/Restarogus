@@ -1,8 +1,8 @@
 package org.amogus.restarogus.config
 
 import org.amogus.restarogus.repositories.interfaces.UserRepository
-import org.amogus.restarogus.services.OlderOrdersFirstPriorityStrategy
-import org.amogus.restarogus.services.interfaces.PriorityStrategy
+import org.amogus.restarogus.services.interfaces.orderSystem.PriorityStrategy
+import org.amogus.restarogus.services.orderSystem.OlderOrdersFirstPriorityStrategy
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager

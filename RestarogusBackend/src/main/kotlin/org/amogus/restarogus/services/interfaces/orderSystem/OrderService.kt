@@ -1,4 +1,4 @@
-package org.amogus.restarogus.services.interfaces
+package org.amogus.restarogus.services.interfaces.orderSystem
 
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.requests.OrderRequest

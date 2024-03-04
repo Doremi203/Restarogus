@@ -1,10 +1,10 @@
-package org.amogus.restarogus.services
+package org.amogus.restarogus.services.authorization
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import org.amogus.restarogus.services.interfaces.JwtService
+import org.amogus.restarogus.services.interfaces.authorization.JwtService
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.util.*

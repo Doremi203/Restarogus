@@ -1,10 +1,10 @@
-package org.amogus.restarogus.services
+package org.amogus.restarogus.services.orderSystem
 
 import org.amogus.restarogus.models.Order
 import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
-import org.amogus.restarogus.services.interfaces.OrderPublisher
-import org.amogus.restarogus.services.interfaces.OrderSubscriber
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderPublisher
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderSubscriber
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
