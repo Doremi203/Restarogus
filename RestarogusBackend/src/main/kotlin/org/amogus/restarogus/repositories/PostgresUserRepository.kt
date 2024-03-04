@@ -33,7 +33,7 @@ class PostgresUserRepository(
         return keyHolder.keys!!["id"] as Long
     }
 
-    override fun getByUserName(username: String): User? {
+    override fun getByUserName(username: String): User {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """SELECT id, username, password, role FROM users WHERE username = ?
@@ -48,7 +48,7 @@ class PostgresUserRepository(
             DataClassRowMapper.newInstance(User::class.java)
         )
             .firstOrNull()
-            ?: throw IllegalArgumentException("User with username $username does not exist")
+            ?: throw NoSuchElementException("User with username $username does not exist")
 
         return user
     }
