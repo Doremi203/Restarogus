@@ -1,6 +1,5 @@
 package org.amogus.restarogus.services.authorization
 
-import org.amogus.restarogus.exceptions.UserNotRegisteredException
 import org.amogus.restarogus.models.Role
 import org.amogus.restarogus.models.User
 import org.amogus.restarogus.repositories.interfaces.UserRepository
@@ -11,11 +10,13 @@ import org.amogus.restarogus.services.interfaces.authorization.AuthenticationSer
 import org.amogus.restarogus.services.interfaces.authorization.JwtService
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class AuthenticationServiceImpl(
+    private val userDetailsService: UserDetailsService,
     private val userRepository: UserRepository,
     private val jwtService: JwtService,
     private val authenticationManager: AuthenticationManager,
@@ -37,8 +38,7 @@ class AuthenticationServiceImpl(
     }
 
     override fun login(request: LoginRequest): AuthenticationResponse? {
-        val user = userRepository.getByUserName(request.username)
-            ?: throw UserNotRegisteredException("Incorrect username or password.")
+        val user = userDetailsService.loadUserByUsername(request.username)
 
         authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(

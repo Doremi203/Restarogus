@@ -1,5 +1,6 @@
 package org.amogus.restarogus.config
 
+import org.amogus.restarogus.exceptions.UserNotRegisteredException
 import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.amogus.restarogus.services.authorization.JwtServiceImpl
 import org.amogus.restarogus.services.interfaces.authorization.JwtService
@@ -23,7 +24,7 @@ class ApplicationConfiguration(
     @Bean
     fun userDetailsService(): UserDetailsService {
         return UserDetailsService { username ->
-            userRepository.getByUserName(username)
+            userRepository.getByUserName(username) ?: throw UserNotRegisteredException()
         }
     }
 
