@@ -8,17 +8,15 @@ import io.jsonwebtoken.security.Keys
 import org.amogus.restarogus.exceptions.IllegalJwtTokenException
 import org.amogus.restarogus.services.interfaces.authorization.JwtService
 import org.springframework.security.core.userdetails.UserDetails
-import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
 
-@Service
-class JwtServiceImpl : JwtService {
+class JwtServiceImpl(
+    private val secret: String,
+    expirationTimeInMinutes: Int
+) : JwtService {
 
-    private val secret = "5b9763e66a963ee6b756961c710e8f1b3a637dd6dce5e18e01317a360e186997"
-    private val expirationTimeInMinutes = 1
     private val expirationTimeInMillis = 1000 * 60 * expirationTimeInMinutes
-
     override fun isTokenValid(jwtToken: String, userDetails: UserDetails): Boolean {
         val userName = extractUserName(jwtToken)
         return userName == userDetails.username
