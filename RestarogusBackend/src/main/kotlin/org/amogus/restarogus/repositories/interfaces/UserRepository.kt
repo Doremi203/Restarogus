@@ -4,5 +4,5 @@ import org.amogus.restarogus.models.User
 
 interface UserRepository {
     fun add(user: User): Long
-    fun getByUserName(username: String): User
+    fun getByUserName(username: String): User?
 }
