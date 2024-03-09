@@ -5,7 +5,7 @@ import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.amogus.restarogus.services.authorization.JwtServiceImpl
 import org.amogus.restarogus.services.interfaces.authorization.JwtService
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderPriorityStrategy
-import org.amogus.restarogus.services.orderSystem.OlderOrdersFirstPriorityStrategy
+import org.amogus.restarogus.services.orderSystem.FifoOrderPriorityStrategy
 import org.springframework.boot.web.servlet.error.ErrorAttributes
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -56,7 +56,7 @@ class ApplicationConfiguration(
 
     @Bean
     fun priorityStrategy(): OrderPriorityStrategy {
-        return OlderOrdersFirstPriorityStrategy()
+        return FifoOrderPriorityStrategy()
     }
 
     @Bean
