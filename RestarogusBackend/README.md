@@ -27,7 +27,7 @@ The project is structured into various packages:
 - `org.amogus.restarogus.validators`: Contains validators for services.
 
 ## Patterns
-Application uses the following patterns:
+These are some of the patterns that Application uses:
 ### Spring
 - **Builder**: Used by spring to build complex objects. 
 For example, `ResponseEntity` is built using `ResponseEntityBuilder`. 
