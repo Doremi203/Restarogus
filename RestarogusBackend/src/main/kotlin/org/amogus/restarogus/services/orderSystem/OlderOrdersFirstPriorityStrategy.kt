@@ -5,6 +5,6 @@ import org.amogus.restarogus.services.interfaces.orderSystem.PriorityStrategy
 
 class OlderOrdersFirstPriorityStrategy : PriorityStrategy {
     override fun getPriorityOrders(orders: List<Order>): List<Order> {
-        return orders.sortedByDescending { it.date }
+        return orders.sortedBy { it.date }
     }
 }

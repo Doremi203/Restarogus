@@ -30,6 +30,18 @@ class RestaurantStatsServiceImpl(
         return restaurantStatsRepository.getRevenue()
     }
 
+    override fun getLoss(): BigDecimal {
+        val orders = orderRepository.getAll().filter { it.status == OrderStatus.CANCELLED }
+
+        val orderPositions = orders.flatMap { order ->
+            orderPositionRepository.getAllByOrderId(order.id)
+        }
+
+        return orderPositions.sumOf { position ->
+            menuItemService.getMenuItemById(position.menuItemId).price * position.quantityDone.toBigDecimal()
+        }
+    }
+
     override fun getMostPopularDish(): String {
         val orders = orderRepository.getAll().filter { it.status == OrderStatus.PAYED }
 

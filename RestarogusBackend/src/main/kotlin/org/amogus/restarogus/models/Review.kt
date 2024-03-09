@@ -1,6 +1,6 @@
-package org.amogus.restarogus.repositories.dto
+package org.amogus.restarogus.models
 
-data class ReviewDTO(
+data class Review(
     val orderId: Long,
     val rating: Int,
     val comment: String,

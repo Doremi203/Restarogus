@@ -12,5 +12,6 @@ data class UpdateMenuItemRequest(
     @get:Min(1)
     val cookTimeInMinutes: Int,
     @get:Min(1)
-    val quantity: Int
+    val quantity: Int,
+    val inMenu: Boolean
 )

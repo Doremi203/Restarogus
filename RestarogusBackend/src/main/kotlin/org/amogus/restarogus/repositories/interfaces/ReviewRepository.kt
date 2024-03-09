@@ -1,9 +1,9 @@
 package org.amogus.restarogus.repositories.interfaces
 
-import org.amogus.restarogus.repositories.dto.ReviewDTO
+import org.amogus.restarogus.models.Review
 
 interface ReviewRepository {
-    fun add(review: ReviewDTO)
-    fun getAll(): List<ReviewDTO>
-    fun getAllByOrderId(orderId: Long): List<ReviewDTO>
+    fun add(review: Review)
+    fun getAll(): List<Review>
+    fun getAllByOrderId(orderId: Long): List<Review>
 }

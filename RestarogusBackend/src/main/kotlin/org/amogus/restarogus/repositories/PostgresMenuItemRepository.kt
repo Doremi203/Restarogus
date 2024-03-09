@@ -1,6 +1,6 @@
 package org.amogus.restarogus.repositories
 
-import org.amogus.restarogus.repositories.dto.MenuItemDTO
+import org.amogus.restarogus.models.MenuItem
 import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
@@ -13,19 +13,20 @@ import java.sql.Statement
 class PostgresMenuItemRepository(
     private val dataBase: JdbcTemplate
 ) : MenuItemRepository {
-    override fun add(item: MenuItemDTO): Long {
+    override fun add(item: MenuItem): Long {
         val keyHolder = GeneratedKeyHolder()
 
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
-                """INSERT INTO menu_items(name, price, cook_time_in_minutes, quantity) 
-                    VALUES (?, ?, ?, ?)""".trimIndent(),
+                """INSERT INTO menu_items(name, price, cook_time_in_minutes, quantity, in_menu) 
+                    VALUES (?, ?, ?, ?, ?)""".trimIndent(),
                 Statement.RETURN_GENERATED_KEYS
             )
             preparedStatement.setString(1, item.name)
             preparedStatement.setBigDecimal(2, item.price)
             preparedStatement.setInt(3, item.cookTimeInMinutes)
             preparedStatement.setInt(4, item.quantity)
+            preparedStatement.setBoolean(5, item.inMenu)
             preparedStatement
         }
         dataBase.update(preparedStatementCreator, keyHolder)
@@ -49,18 +50,19 @@ class PostgresMenuItemRepository(
         }
     }
 
-    override fun update(item: MenuItemDTO) {
+    override fun update(item: MenuItem) {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """UPDATE menu_items 
-                    SET name = ?, price = ?, cook_time_in_minutes = ?, quantity = ? 
+                    SET name = ?, price = ?, cook_time_in_minutes = ?, quantity = ?, in_menu = ?
                     WHERE id = ?""".trimIndent()
             )
             preparedStatement.setString(1, item.name)
             preparedStatement.setBigDecimal(2, item.price)
             preparedStatement.setInt(3, item.cookTimeInMinutes)
             preparedStatement.setInt(4, item.quantity)
-            preparedStatement.setLong(5, item.id)
+            preparedStatement.setBoolean(5, item.inMenu)
+            preparedStatement.setLong(6, item.id)
             preparedStatement
         }
 
@@ -71,10 +73,48 @@ class PostgresMenuItemRepository(
         }
     }
 
-    override fun getById(id: Long): MenuItemDTO {
+    override fun updateInMenuStatus(id: Long, inMenu: Boolean) {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
-                """SELECT id, name, price, cook_time_in_minutes, quantity 
+                """UPDATE menu_items 
+                    SET in_menu = ? 
+                    WHERE id = ?""".trimIndent()
+            )
+            preparedStatement.setBoolean(1, inMenu)
+            preparedStatement.setLong(2, id)
+            preparedStatement
+        }
+
+        val updatedCount = dataBase.update(preparedStatementCreator)
+
+        if (updatedCount == 0) {
+            throw NoSuchElementException("Item with id $id does not exist")
+        }
+    }
+
+    override fun updateQuantity(id: Long, quantity: Int) {
+        val preparedStatementCreator = PreparedStatementCreator { connection ->
+            val preparedStatement = connection.prepareStatement(
+                """UPDATE menu_items 
+                    SET quantity = ? 
+                    WHERE id = ?""".trimIndent()
+            )
+            preparedStatement.setInt(1, quantity)
+            preparedStatement.setLong(2, id)
+            preparedStatement
+        }
+
+        val updatedCount = dataBase.update(preparedStatementCreator)
+
+        if (updatedCount == 0) {
+            throw NoSuchElementException("Item with id $id does not exist")
+        }
+    }
+
+    override fun getById(id: Long): MenuItem {
+        val preparedStatementCreator = PreparedStatementCreator { connection ->
+            val preparedStatement = connection.prepareStatement(
+                """SELECT id, name, price, cook_time_in_minutes, quantity, in_menu
                     FROM menu_items 
                     WHERE id = ?""".trimIndent()
             )
@@ -84,11 +124,26 @@ class PostgresMenuItemRepository(
 
         val menuItem = dataBase.query(
             preparedStatementCreator,
-            DataClassRowMapper.newInstance(MenuItemDTO::class.java)
+            DataClassRowMapper.newInstance(MenuItem::class.java)
         ).firstOrNull()
             ?: throw NoSuchElementException("Item with id $id does not exist")
 
         return menuItem
+    }
+
+    override fun getAll(): List<MenuItem> {
+        val preparedStatementCreator = PreparedStatementCreator { connection ->
+            val preparedStatement = connection.prepareStatement(
+                """SELECT id, name, price, cook_time_in_minutes, quantity, in_menu
+                    FROM menu_items""".trimIndent()
+            )
+            preparedStatement
+        }
+
+        return dataBase.query(
+            preparedStatementCreator,
+            DataClassRowMapper.newInstance(MenuItem::class.java)
+        )
     }
 }
 

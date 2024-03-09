@@ -1,10 +1,13 @@
 package org.amogus.restarogus.repositories.interfaces
 
-import org.amogus.restarogus.repositories.dto.MenuItemDTO
+import org.amogus.restarogus.models.MenuItem
 
 interface MenuItemRepository {
-    fun add(item: MenuItemDTO): Long
+    fun add(item: MenuItem): Long
     fun remove(id: Long)
-    fun update(item: MenuItemDTO)
-    fun getById(id: Long): MenuItemDTO
+    fun update(item: MenuItem)
+    fun updateInMenuStatus(id: Long, inMenu: Boolean)
+    fun updateQuantity(id: Long, quantity: Int)
+    fun getById(id: Long): MenuItem
+    fun getAll(): List<MenuItem>
 }

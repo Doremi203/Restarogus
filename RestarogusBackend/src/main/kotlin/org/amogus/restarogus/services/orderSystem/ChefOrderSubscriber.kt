@@ -7,10 +7,9 @@ import kotlinx.coroutines.launch
 import org.amogus.restarogus.models.Order
 import org.amogus.restarogus.models.OrderPosition
 import org.amogus.restarogus.models.OrderStatus
-import org.amogus.restarogus.repositories.dto.OrderPositionDTO
-import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
+import org.amogus.restarogus.services.interfaces.MenuItemService
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderPublisher
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderSubscriber
 import org.amogus.restarogus.services.interfaces.orderSystem.PriorityStrategy
@@ -22,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger
 final class ChefOrderSubscriber(
     private val orderRepository: OrderRepository,
     private val orderPositionRepository: OrderPositionRepository,
-    private val menuItemsRepository: MenuItemRepository,
+    private val menuItemsService: MenuItemService,
     private val priorityStrategy: PriorityStrategy,
     orderPublisher: OrderPublisher,
 ) : OrderSubscriber {
@@ -51,27 +50,21 @@ final class ChefOrderSubscriber(
         logger.info("Cooking order $orderId")
         while (!orderFinished) {
             val order = orderRepository.getById(orderId)
-            if (!isOrderNeededToProcess(order.status)) {
+            if (!isOrderNeededToProcess(order.status))
                 break
-            }
 
-            val orderPositionToCook = orderPositionRepository.getAllByOrderId(orderId)
-                .firstOrNull { it.quantityDone < it.quantity }
-            if (orderPositionToCook != null) {
-                cookOrderPosition(
-                    OrderPosition(
-                        orderPositionToCook.id,
-                        orderPositionToCook.orderId,
-                        orderPositionToCook.menuItemId,
-                        orderPositionToCook.quantity,
-                        orderPositionToCook.quantityDone
-                    )
-                )
-            }
+            processOneOrderPosition(orderId)
 
             orderFinished = checkOrderDone(orderId)
         }
         currentCookingOrdersCount.decrementAndGet()
+    }
+
+    private suspend fun processOneOrderPosition(orderId: Long) {
+        val orderPositionToCook = orderPositionRepository.getAllByOrderId(orderId)
+            .firstOrNull { it.quantityDone < it.quantity }
+        if (orderPositionToCook != null)
+            cookOrderPosition(orderPositionToCook)
     }
 
     private fun checkOrderDone(orderId: Long): Boolean {
@@ -80,28 +73,42 @@ final class ChefOrderSubscriber(
         }
         if (positionsLeft == 0) {
             orderRepository.updateOrderStatus(orderId, OrderStatus.FINISHED)
+            logger.info("Order $orderId is finished")
             return true
         }
         return false
     }
 
     private suspend fun cookOrderPosition(position: OrderPosition) {
-        val menuItem = menuItemsRepository.getById(position.menuItemId)
+        val menuItem = menuItemsService.getMenuItemById(position.menuItemId)
         val toCookCount = position.quantity - position.quantityDone
         repeat(toCookCount) {
+            if (!isMenuItemInStock(position))
+                return
+
             delay(menuItem.cookTimeInMinutes * 1000L * 60)
-            orderPositionRepository.update(
-                OrderPositionDTO(
-                    position.orderId,
+            orderPositionRepository.updateQuantityDone(position.id, position.quantityDone + 1)
+        }
+    }
+
+    private fun isMenuItemInStock(position: OrderPosition): Boolean {
+        synchronized(this) {
+            val curQuantity = menuItemsService.getMenuItemById(position.menuItemId).quantity
+            if (curQuantity > 0) {
+                menuItemsService.updateMenuItemQuantity(
                     position.menuItemId,
-                    position.quantity,
-                    position.quantityDone + 1,
-                    position.id
+                    curQuantity - 1
                 )
-            )
+                return true
+            } else {
+                orderRepository.updateOrderStatus(position.orderId, OrderStatus.WAITING_RESTOCK)
+                return false
+            }
         }
     }
 
     private fun isOrderNeededToProcess(orderStatus: OrderStatus) =
-        orderStatus != OrderStatus.FINISHED && orderStatus != OrderStatus.CANCELLED
+        orderStatus != OrderStatus.FINISHED
+                && orderStatus != OrderStatus.CANCELLED
+                && orderStatus != OrderStatus.WAITING_RESTOCK
 }

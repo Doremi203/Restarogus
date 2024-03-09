@@ -1,5 +1,7 @@
 package org.amogus.restarogus.controllers
 
+import jakarta.validation.Valid
+import org.amogus.restarogus.models.MenuItem
 import org.amogus.restarogus.requests.AddMenuItemRequest
 import org.amogus.restarogus.requests.UpdateMenuItemRequest
 import org.amogus.restarogus.responses.GetMenuItemResponse
@@ -13,23 +15,65 @@ import org.springframework.web.bind.annotation.*
 class MenuItemController(
     private val menuItemsService: MenuItemService,
 ) {
+    @GetMapping
+    fun getMenuItems(): ResponseEntity<List<GetMenuItemResponse>> {
+        val menuItems = menuItemsService.getMenuItems()
+
+        return ResponseEntity.ok(menuItems.map { menuItem ->
+            GetMenuItemResponse(
+                menuItem.id,
+                menuItem.name,
+                menuItem.price,
+                menuItem.cookTimeInMinutes,
+                menuItem.quantity,
+                menuItem.inMenu
+            )
+        })
+    }
+
     @GetMapping("/{id}")
     fun getMenuItem(@PathVariable id: Long): ResponseEntity<GetMenuItemResponse> {
         val menuItem = menuItemsService.getMenuItemById(id)
 
-        return ResponseEntity.ok(menuItem)
+        return ResponseEntity.ok(
+            GetMenuItemResponse(
+                menuItem.id,
+                menuItem.name,
+                menuItem.price,
+                menuItem.cookTimeInMinutes,
+                menuItem.quantity,
+                menuItem.inMenu
+            )
+        )
     }
 
     @PostMapping
-    fun addMenuItem(@RequestBody request: AddMenuItemRequest): ResponseEntity<Long> {
-        val menuItemId = menuItemsService.addMenuItem(request)
+    fun addMenuItem(@Valid @RequestBody request: AddMenuItemRequest): ResponseEntity<Long> {
+        val menuItemId = menuItemsService.addMenuItem(
+            MenuItem(
+                request.name,
+                request.price,
+                request.cookTimeInMinutes,
+                request.quantity,
+                request.inMenu,
+            )
+        )
 
         return ResponseEntity.status(HttpStatus.CREATED).body(menuItemId)
     }
 
     @PatchMapping("/{id}")
-    fun updateMenuItem(@PathVariable id: Long, @RequestBody request: UpdateMenuItemRequest): ResponseEntity<Unit> {
-        menuItemsService.updateMenuItem(id, request)
+    fun updateMenuItem(@PathVariable id: Long, @Valid @RequestBody request: UpdateMenuItemRequest): ResponseEntity<Unit> {
+        menuItemsService.updateMenuItem(
+            id,
+            MenuItem(
+                request.name,
+                request.price,
+                request.cookTimeInMinutes,
+                request.quantity,
+                request.inMenu,
+            )
+        )
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
