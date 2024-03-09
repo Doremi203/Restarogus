@@ -60,13 +60,6 @@ final class ChefOrderSubscriber(
         currentCookingOrdersCount.decrementAndGet()
     }
 
-    private suspend fun processOneOrderPosition(orderId: Long) {
-        val orderPositionToCook = orderPositionRepository.getAllByOrderId(orderId)
-            .firstOrNull { it.quantityDone < it.quantity }
-        if (orderPositionToCook != null)
-            cookOrderPosition(orderPositionToCook)
-    }
-
     private fun checkOrderDone(orderId: Long): Boolean {
         val positionsLeft = orderPositionRepository.getAllByOrderId(orderId).count {
             it.quantityDone < it.quantity
@@ -77,6 +70,13 @@ final class ChefOrderSubscriber(
             return true
         }
         return false
+    }
+
+    private suspend fun processOneOrderPosition(orderId: Long) {
+        val orderPositionToCook = orderPositionRepository.getAllByOrderId(orderId)
+            .firstOrNull { it.quantityDone < it.quantity }
+        if (orderPositionToCook != null)
+            cookOrderPosition(orderPositionToCook)
     }
 
     private suspend fun cookOrderPosition(position: OrderPosition) {
