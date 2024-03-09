@@ -10,9 +10,9 @@ import org.amogus.restarogus.models.OrderStatus
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.amogus.restarogus.services.interfaces.MenuItemService
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderPriorityStrategy
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderPublisher
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderSubscriber
-import org.amogus.restarogus.services.interfaces.orderSystem.PriorityStrategy
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.concurrent.atomic.AtomicInteger
@@ -22,7 +22,7 @@ final class ChefOrderSubscriber(
     private val orderRepository: OrderRepository,
     private val orderPositionRepository: OrderPositionRepository,
     private val menuItemsService: MenuItemService,
-    private val priorityStrategy: PriorityStrategy,
+    private val priorityStrategy: OrderPriorityStrategy,
     orderPublisher: OrderPublisher,
 ) : OrderSubscriber {
     init {

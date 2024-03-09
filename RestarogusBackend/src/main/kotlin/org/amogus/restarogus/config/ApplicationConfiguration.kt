@@ -4,7 +4,7 @@ import org.amogus.restarogus.exceptions.UserNotRegisteredException
 import org.amogus.restarogus.repositories.interfaces.UserRepository
 import org.amogus.restarogus.services.authorization.JwtServiceImpl
 import org.amogus.restarogus.services.interfaces.authorization.JwtService
-import org.amogus.restarogus.services.interfaces.orderSystem.PriorityStrategy
+import org.amogus.restarogus.services.interfaces.orderSystem.OrderPriorityStrategy
 import org.amogus.restarogus.services.orderSystem.OlderOrdersFirstPriorityStrategy
 import org.springframework.boot.web.servlet.error.ErrorAttributes
 import org.springframework.context.annotation.Bean
@@ -55,7 +55,7 @@ class ApplicationConfiguration(
     }
 
     @Bean
-    fun priorityStrategy(): PriorityStrategy {
+    fun priorityStrategy(): OrderPriorityStrategy {
         return OlderOrdersFirstPriorityStrategy()
     }
 
