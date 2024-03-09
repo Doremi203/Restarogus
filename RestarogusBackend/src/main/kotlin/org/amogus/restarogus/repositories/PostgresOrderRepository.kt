@@ -1,7 +1,7 @@
 package org.amogus.restarogus.repositories
 
+import org.amogus.restarogus.models.Order
 import org.amogus.restarogus.models.OrderStatus
-import org.amogus.restarogus.repositories.dto.OrderDTO
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
@@ -15,7 +15,7 @@ import java.sql.Timestamp
 class PostgresOrderRepository(
     private val dataBase: JdbcTemplate
 ) : OrderRepository {
-    override fun add(order: OrderDTO): Long {
+    override fun add(order: Order): Long {
         val keyHolder = GeneratedKeyHolder()
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
@@ -34,7 +34,7 @@ class PostgresOrderRepository(
         return keyHolder.keys!!["id"] as Long
     }
 
-    override fun update(order: OrderDTO) {
+    override fun update(order: Order) {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """UPDATE orders 
@@ -66,7 +66,7 @@ class PostgresOrderRepository(
         }
     }
 
-    override fun getById(orderId: Long): OrderDTO {
+    override fun getById(orderId: Long): Order {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """SELECT * FROM orders WHERE id = ?""".trimIndent()
@@ -77,14 +77,14 @@ class PostgresOrderRepository(
 
         val order = dataBase.query(
             preparedStatementCreator,
-            DataClassRowMapper.newInstance(OrderDTO::class.java)
+            DataClassRowMapper.newInstance(Order::class.java)
         ).firstOrNull()
             ?: throw NoSuchElementException("No order with id: $orderId")
 
         return order
     }
 
-    override fun getAll(): List<OrderDTO> {
+    override fun getAll(): List<Order> {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """SELECT * FROM orders""".trimIndent()
@@ -94,7 +94,7 @@ class PostgresOrderRepository(
 
         return dataBase.query(
             preparedStatementCreator,
-            DataClassRowMapper.newInstance(OrderDTO::class.java)
+            DataClassRowMapper.newInstance(Order::class.java)
         )
     }
 

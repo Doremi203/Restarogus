@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 interface RestaurantStatsService {
     fun updateRevenue(revenue: BigDecimal)
     fun getRevenue(): BigDecimal
+    fun getLoss(): BigDecimal
     fun getMostPopularDish(): String
     fun getAverageRating(): Double
     fun getOrdersCountOverPeriod(from: LocalDateTime, to: LocalDateTime): Int

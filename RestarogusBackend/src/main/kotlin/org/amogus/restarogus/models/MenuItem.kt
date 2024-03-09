@@ -1,9 +1,12 @@
 package org.amogus.restarogus.models
 
+import java.math.BigDecimal
+
 data class MenuItem(
-    val id: Int,
     val name: String,
-    val price: Double,
+    val price: BigDecimal,
     val cookTimeInMinutes: Int,
     val quantity: Int,
+    val inMenu: Boolean,
+    val id: Long = 0L,
 )

@@ -1,6 +1,6 @@
 package org.amogus.restarogus.repositories
 
-import org.amogus.restarogus.repositories.dto.OrderPositionDTO
+import org.amogus.restarogus.models.OrderPosition
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.springframework.jdbc.core.DataClassRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
@@ -13,7 +13,7 @@ import java.sql.Statement
 class PostgresOrderPositionRepository(
     private val dataBase: JdbcTemplate
 ) : OrderPositionRepository {
-    override fun add(order: OrderPositionDTO): Long {
+    override fun add(order: OrderPosition): Long {
         val keyHolder = GeneratedKeyHolder()
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
@@ -49,7 +49,7 @@ class PostgresOrderPositionRepository(
         }
     }
 
-    override fun update(orderPosition: OrderPositionDTO) {
+    override fun update(orderPosition: OrderPosition) {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """UPDATE order_positions 
@@ -71,7 +71,26 @@ class PostgresOrderPositionRepository(
         }
     }
 
-    override fun getAll(): List<OrderPositionDTO> {
+    override fun updateQuantityDone(id: Long, quantityDone: Int) {
+        val preparedStatementCreator = PreparedStatementCreator { connection ->
+            val preparedStatement = connection.prepareStatement(
+                """UPDATE order_positions 
+                    SET quantity_done = ?
+                    WHERE id = ?""".trimIndent()
+            )
+            preparedStatement.setInt(1, quantityDone)
+            preparedStatement.setLong(2, id)
+            preparedStatement
+        }
+
+        val updatedCount = dataBase.update(preparedStatementCreator)
+
+        if (updatedCount == 0) {
+            throw NoSuchElementException("Order position with id $id does not exist")
+        }
+    }
+
+    override fun getAll(): List<OrderPosition> {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """SELECT * FROM order_positions""".trimIndent()
@@ -81,11 +100,11 @@ class PostgresOrderPositionRepository(
 
         return dataBase.query(
             preparedStatementCreator,
-            DataClassRowMapper.newInstance(OrderPositionDTO::class.java)
+            DataClassRowMapper.newInstance(OrderPosition::class.java)
         )
     }
 
-    override fun getAllByOrderId(orderId: Long): List<OrderPositionDTO> {
+    override fun getAllByOrderId(orderId: Long): List<OrderPosition> {
         val preparedStatementCreator = PreparedStatementCreator { connection ->
             val preparedStatement = connection.prepareStatement(
                 """SELECT * FROM order_positions WHERE order_id = ?""".trimIndent()
@@ -96,7 +115,7 @@ class PostgresOrderPositionRepository(
 
         return dataBase.query(
             preparedStatementCreator,
-            DataClassRowMapper.newInstance(OrderPositionDTO::class.java)
+            DataClassRowMapper.newInstance(OrderPosition::class.java)
         )
     }
 

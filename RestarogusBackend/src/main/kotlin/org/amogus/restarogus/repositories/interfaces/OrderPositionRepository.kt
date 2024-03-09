@@ -1,11 +1,12 @@
 package org.amogus.restarogus.repositories.interfaces
 
-import org.amogus.restarogus.repositories.dto.OrderPositionDTO
+import org.amogus.restarogus.models.OrderPosition
 
 interface OrderPositionRepository {
-    fun add(order: OrderPositionDTO): Long
+    fun add(order: OrderPosition): Long
     fun remove(id: Long)
-    fun update(orderPosition: OrderPositionDTO)
-    fun getAll(): List<OrderPositionDTO>
-    fun getAllByOrderId(orderId: Long): List<OrderPositionDTO>
+    fun update(orderPosition: OrderPosition)
+    fun updateQuantityDone(id: Long, quantityDone: Int)
+    fun getAll(): List<OrderPosition>
+    fun getAllByOrderId(orderId: Long): List<OrderPosition>
 }

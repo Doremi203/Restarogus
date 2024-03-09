@@ -13,4 +13,5 @@ data class AddMenuItemRequest(
     val cookTimeInMinutes: Int,
     @get:Min(1)
     val quantity: Int,
+    val inMenu: Boolean
 )

@@ -1,5 +1,6 @@
 package org.amogus.restarogus.controllers
 
+import jakarta.validation.Valid
 import org.amogus.restarogus.requests.OrdersCountOverPeriodRequest
 import org.amogus.restarogus.services.interfaces.RestaurantStatsService
 import org.springframework.http.ResponseEntity
@@ -19,6 +20,11 @@ class RestaurantStatsController(
         return ResponseEntity.ok(restaurantStatsService.getRevenue())
     }
 
+    @GetMapping("/loss")
+    fun getLoss(): ResponseEntity<BigDecimal> {
+        return ResponseEntity.ok(restaurantStatsService.getLoss())
+    }
+
     @GetMapping("/most_popular_dish")
     fun getMostPopularDish(): ResponseEntity<String> {
         return ResponseEntity.ok(restaurantStatsService.getMostPopularDish())
@@ -30,7 +36,7 @@ class RestaurantStatsController(
     }
 
     @GetMapping("/orders_count_over_period")
-    fun getOrdersCountOverPeriod(@RequestBody request: OrdersCountOverPeriodRequest): ResponseEntity<Int> {
+    fun getOrdersCountOverPeriod(@Valid @RequestBody request: OrdersCountOverPeriodRequest): ResponseEntity<Int> {
         return ResponseEntity.ok(restaurantStatsService.getOrdersCountOverPeriod(request.from, request.to))
     }
 }

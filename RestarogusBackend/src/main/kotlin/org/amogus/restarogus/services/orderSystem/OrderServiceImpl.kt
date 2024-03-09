@@ -1,19 +1,18 @@
 package org.amogus.restarogus.services.orderSystem
 
-import org.amogus.restarogus.exceptions.IncorrectOrderStatusException
-import org.amogus.restarogus.models.OrderStatus
-import org.amogus.restarogus.repositories.dto.OrderDTO
-import org.amogus.restarogus.repositories.dto.OrderPositionDTO
-import org.amogus.restarogus.repositories.dto.ReviewDTO
-import org.amogus.restarogus.repositories.interfaces.MenuItemRepository
+import org.amogus.restarogus.exceptions.DuplicateReviewException
+import org.amogus.restarogus.models.*
 import org.amogus.restarogus.repositories.interfaces.OrderPositionRepository
 import org.amogus.restarogus.repositories.interfaces.OrderRepository
 import org.amogus.restarogus.repositories.interfaces.ReviewRepository
 import org.amogus.restarogus.requests.OrderRequest
 import org.amogus.restarogus.requests.ReviewRequest
+import org.amogus.restarogus.services.interfaces.MenuItemService
 import org.amogus.restarogus.services.interfaces.RestaurantStatsService
 import org.amogus.restarogus.services.interfaces.orderSystem.OrderService
-import org.springframework.security.access.AccessDeniedException
+import org.amogus.restarogus.validators.OrderServiceValidator
+import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -25,21 +24,24 @@ class OrderServiceImpl(
     private val orderPositionRepository: OrderPositionRepository,
     private val reviewRepository: ReviewRepository,
     private val restaurantStatsService: RestaurantStatsService,
-    private val menuRepository: MenuItemRepository,
+    private val menuItemService: MenuItemService,
+    private val orderServiceValidator: OrderServiceValidator
 ) : OrderService {
     @Transactional
-    override fun placeOrder(customerId: Long, orderRequest: OrderRequest): Long {
+    override fun placeOrder(orderRequest: OrderRequest): Long {
+        val user = SecurityContextHolder.getContext().authentication.principal as User
         val orderId = orderRepository.add(
-            OrderDTO(
-                customerId = customerId,
+            Order(
+                customerId = user.id,
                 status = OrderStatus.PENDING,
                 date = LocalDateTime.now()
             )
         )
 
         for (menuItem in orderRequest.menuItems) {
+            orderServiceValidator.assertMenuItemInMenu(menuItem.id)
             orderPositionRepository.add(
-                OrderPositionDTO(
+                OrderPosition(
                     orderId = orderId,
                     menuItemId = menuItem.id,
                     quantity = menuItem.quantity,
@@ -50,32 +52,33 @@ class OrderServiceImpl(
         return orderId
     }
 
-    override fun cancelOrder(customerId: Long, orderId: Long) {
+    override fun cancelOrder(orderId: Long) {
         val order = orderRepository.getById(orderId)
 
-        assertOrderOwnership(order, customerId)
-        asserOrderPending(order)
+        orderServiceValidator.assertOrderOwnershipWithAdminAccess(order)
+        orderServiceValidator.asserOrderPending(order)
 
         orderRepository.updateOrderStatus(orderId, OrderStatus.CANCELLED)
     }
 
-    override fun getOrderStatus(customerId: Long, orderId: Long): OrderStatus {
+    override fun getOrderStatus(orderId: Long): OrderStatus {
         val order = orderRepository.getById(orderId)
 
-        assertOrderOwnership(order, customerId)
+        orderServiceValidator.assertOrderOwnershipWithAdminAccess(order)
 
         return orderRepository.getById(orderId).status
     }
 
-    override fun addPositions(customerId: Long, orderId: Long, orderRequest: OrderRequest) {
+    override fun addPositions(orderId: Long, orderRequest: OrderRequest) {
         val order = orderRepository.getById(orderId)
 
-        assertOrderOwnership(order, customerId)
-        asserOrderPending(order)
+        orderServiceValidator.assertOrderOwnership(order)
+        orderServiceValidator.asserOrderPending(order)
 
         for (menuItem in orderRequest.menuItems) {
+            orderServiceValidator.assertMenuItemInMenu(menuItem.id)
             orderPositionRepository.add(
-                OrderPositionDTO(
+                OrderPosition(
                     orderId = orderId,
                     menuItemId = menuItem.id,
                     quantity = menuItem.quantity,
@@ -84,11 +87,11 @@ class OrderServiceImpl(
         }
     }
 
-    override fun payOrder(customerId: Long, orderId: Long) {
+    override fun payOrder(orderId: Long) {
         val order = orderRepository.getById(orderId)
 
-        assertOrderOwnership(order, customerId)
-        assertOrderCanBePayed(order)
+        orderServiceValidator.assertOrderOwnership(order)
+        orderServiceValidator.assertOrderCanBePayed(order)
 
         val totalPrice = calculateTotalPrice(orderId)
         restaurantStatsService.updateRevenue(totalPrice)
@@ -100,49 +103,33 @@ class OrderServiceImpl(
         val orderPositions = orderPositionRepository.getAllByOrderId(orderId)
 
         for (orderPosition in orderPositions) {
-            val menuItem = menuRepository.getById(orderPosition.menuItemId)
+            val menuItem = menuItemService.getMenuItemById(orderPosition.menuItemId)
             totalPrice += menuItem.price * orderPosition.quantity.toBigDecimal()
         }
 
         return totalPrice
     }
 
-    override fun addReview(customerId: Long, orderId: Long, review: ReviewRequest) {
+    override fun addReview(orderId: Long, review: ReviewRequest) {
         val order = orderRepository.getById(orderId)
 
-        assertOrderOwnership(order, customerId)
-        assertOrderCanBeReviewed(order)
+        orderServiceValidator.assertOrderOwnership(order)
+        orderServiceValidator.assertOrderCanBeReviewed(order)
 
-        reviewRepository.add(
-            ReviewDTO(
-                orderId = orderId,
-                rating = review.rating,
-                comment = review.comment,
+        try {
+            reviewRepository.add(
+                Review(
+                    orderId = orderId,
+                    rating = review.rating,
+                    comment = review.comment,
+                )
             )
-        )
-    }
-
-    fun assertOrderOwnership(order: OrderDTO, customerId: Long) {
-        if (order.customerId != customerId) {
-            throw AccessDeniedException("Order does not belong to the customer")
+        } catch (e: DataIntegrityViolationException) {
+            throw DuplicateReviewException()
         }
     }
 
-    fun asserOrderPending(order: OrderDTO) {
-        if (order.status == OrderStatus.FINISHED || order.status == OrderStatus.CANCELLED) {
-            throw IncorrectOrderStatusException("Order is not pending")
-        }
-    }
-
-    fun assertOrderCanBePayed(order: OrderDTO) {
-        if (order.status != OrderStatus.FINISHED) {
-            throw IncorrectOrderStatusException("Order is not finished")
-        }
-    }
-
-    private fun assertOrderCanBeReviewed(order: OrderDTO) {
-        if (order.status != OrderStatus.PAYED) {
-            throw IncorrectOrderStatusException("Order is not payed")
-        }
+    override fun getMenu(): List<MenuItem> {
+        return menuItemService.getMenuItems().filter { it.inMenu }
     }
 }

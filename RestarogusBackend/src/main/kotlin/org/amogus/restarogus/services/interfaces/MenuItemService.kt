@@ -1,12 +1,12 @@
 package org.amogus.restarogus.services.interfaces
 
-import org.amogus.restarogus.requests.AddMenuItemRequest
-import org.amogus.restarogus.requests.UpdateMenuItemRequest
-import org.amogus.restarogus.responses.GetMenuItemResponse
+import org.amogus.restarogus.models.MenuItem
 
 interface MenuItemService {
-    fun addMenuItem(menuItem: AddMenuItemRequest): Long
+    fun addMenuItem(menuItem: MenuItem): Long
     fun removeMenuItem(id: Long)
-    fun updateMenuItem(id: Long, menuItem: UpdateMenuItemRequest)
-    fun getMenuItemById(id: Long): GetMenuItemResponse
+    fun updateMenuItem(id: Long, menuItem: MenuItem)
+    fun updateMenuItemQuantity(id: Long, quantity: Int)
+    fun getMenuItemById(id: Long): MenuItem
+    fun getMenuItems(): List<MenuItem>
 }
