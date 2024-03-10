@@ -54,4 +54,5 @@ To set up the project, you need to have Kotlin, Java, Spring Boot, Gradle and Do
 ## Usage
 
 Use with provided Postman collection.
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/29782245-5a7f980e-e9b8-4a75-ad9d-5244fce5edbc?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D29782245-5a7f980e-e9b8-4a75-ad9d-5244fce5edbc%26entityType%3Dcollection%26workspaceId%3D90ede7e9-712d-4d84-b298-2b704a1d2a02)
 
