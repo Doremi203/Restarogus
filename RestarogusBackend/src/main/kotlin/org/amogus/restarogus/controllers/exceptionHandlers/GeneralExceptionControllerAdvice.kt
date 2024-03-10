@@ -1,4 +1,4 @@
-package org.amogus.restarogus.controllers
+package org.amogus.restarogus.controllers.exceptionHandlers
 
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.http.HttpStatus

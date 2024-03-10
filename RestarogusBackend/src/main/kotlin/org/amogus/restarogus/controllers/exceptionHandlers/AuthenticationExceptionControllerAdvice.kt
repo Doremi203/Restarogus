@@ -1,4 +1,4 @@
-package org.amogus.restarogus.controllers
+package org.amogus.restarogus.controllers.exceptionHandlers
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail

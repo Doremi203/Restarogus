@@ -1,4 +1,4 @@
-package org.amogus.restarogus.controllers
+package org.amogus.restarogus.controllers.exceptionHandlers
 
 import org.amogus.restarogus.exceptions.DuplicateReviewException
 import org.amogus.restarogus.exceptions.IncorrectOrderStatusException
