@@ -48,7 +48,7 @@ To set up the project, you need to have Kotlin, Java, Spring Boot, Gradle and Do
 1. Clone the repository.
 2. Open the project in IntelliJ IDEA 2023.3.4 or any other IDE that supports Kotlin.
 3. Build the project using Gradle.
-4. Run the docker-compose file to start the database.
+4. Run the docker-compose file in `common` directory to start the database.
 5. Run the application.
 
 ## Usage

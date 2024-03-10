@@ -1,5 +1,6 @@
 package org.amogus.restarogus.controllers
 
+import jakarta.validation.Valid
 import org.amogus.restarogus.requests.LoginRequest
 import org.amogus.restarogus.requests.RegisterRequest
 import org.amogus.restarogus.responses.AuthenticationResponse
@@ -16,12 +17,12 @@ class AuthenticationController(
     private val authenticationService: AuthenticationService
 ) {
     @PostMapping("/register")
-    fun register(@RequestBody request: RegisterRequest): ResponseEntity<AuthenticationResponse> {
+    fun register(@Valid @RequestBody request: RegisterRequest): ResponseEntity<AuthenticationResponse> {
         return ResponseEntity.ok(authenticationService.register(request))
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: LoginRequest): ResponseEntity<AuthenticationResponse> {
+    fun login(@Valid @RequestBody request: LoginRequest): ResponseEntity<AuthenticationResponse> {
         return ResponseEntity.ok(authenticationService.login(request))
     }
 }
